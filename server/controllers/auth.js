@@ -47,11 +47,6 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const userAgent = req.useragent;
-    const isMobile = userAgent.isMobile;
-    const isTablet = userAgent.isTablet;
-    const isDesktop = userAgent.isDesktop;
-
     const deviceType = isMobile
       ? "Mobile"
       : isTablet
