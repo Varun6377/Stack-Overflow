@@ -14,9 +14,29 @@
 .user-name {
   padding-left: 20px;
 }
+
 .user-name p {
   color: #7e7e7e;
 }
+
+.user-login-information {
+}
+
+.user-login-information button {
+  padding: 8px 10px;
+  border: solid 1px #7e7e7e;
+  border-radius: 2px;
+  background-color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.user-login-information-details {
+  position: fixed;
+  font-size: 15px;
+  font-family: "Helvetica";
+}
+
 .edit-profile-btn {
   padding: 8px 10px;
   border: solid 1px #7e7e7e;
@@ -71,6 +91,10 @@
   background-color: #0074cc;
 }
 
+.user-actions > * {
+  margin-bottom: 10px;
+}
+
 .user-cancel-btn {
   padding: 14px 10px;
   color: #0a95ff;
@@ -78,4 +102,6 @@
   border: none;
   margin-left: 10px;
   cursor: pointer;
+}
+@media (width <= 580px) {
 }

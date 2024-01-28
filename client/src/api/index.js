@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API = axios.create({ baseURL: "http://localhost:5000" });
+const API = axios.create({
+  baseURL: "https://stack-overflow-backend-umber.vercel.app",
+});
 
 API.interceptors.request.use((req) => {
   if (localStorage.getItem("Profile")) {
@@ -19,12 +21,20 @@ export const postQuestion = (questionData) =>
 
 export const getAllQuestions = () => API.get("/questions/get");
 
-export const postAnswer = (id, noOfAnswers, answerBody, userAnswered, userId) =>
+export const postAnswer = (
+  id,
+  noOfAnswers,
+  answerBody,
+  userAnswered,
+  userId,
+  video
+) =>
   API.patch(`/answer/post/${id}`, {
     noOfAnswers,
     answerBody,
     userAnswered,
     userId,
+    video,
   });
 
 export const deleteQuestion = (id) => API.delete(`/questions/delete/${id}`);

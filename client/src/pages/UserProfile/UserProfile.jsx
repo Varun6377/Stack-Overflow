@@ -10,14 +10,23 @@ import EditProfileForm from "./EditProfileForm";
 import ProfileBio from "./ProfileBio";
 import "./UsersProfile.css";
 import LeftSideBar from "../../components/LeftSideBar/LeftSideBar";
+import { useTheme } from "../../components/ThemeContext/ThemeContext";
+import LoginInformationWidget from "./LoginInformationWidget";
 
 const UserProfile = ({ slideIn, handleSlideIn }) => {
   const { id } = useParams();
   const users = useSelector((state) => state.usersReducer);
   const currentProfile = users.filter((user) => user._id === id)[0];
   const currentUser = useSelector((state) => state.currentUserReducer);
-  
+
+  const { theme } = useTheme();
+
   const [Switch, setSwitch] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowDetails(!showDetails);
+  };
 
   return (
     <div className="home-container-1">
@@ -38,20 +47,37 @@ const UserProfile = ({ slideIn, handleSlideIn }) => {
               <div className="user-name">
                 <h1>{currentProfile?.name}</h1>
                 <p>
-                  <FontAwesomeIcon icon={faBirthdayCake} />{" "} Joined {" "}
-                  {moment(currentProfile?.joinedOn).fromNow()} 
+                  <FontAwesomeIcon icon={faBirthdayCake} /> Joined{" "}
+                  {moment(currentProfile?.joinedOn).fromNow()}
                 </p>
               </div>
             </div>
-            {currentUser?.result._id === id && (
-              <button
-                type="button"
-                onClick={() => setSwitch(true)}
-                className="edit-profile-btn"
-              >
-                <FontAwesomeIcon icon={faPen} />{" "} Edit Profile
-              </button>
-            )}
+            <div className="user-actions">
+              {currentUser?.result._id === id && (
+                <button
+                  type="button"
+                  onClick={() => setSwitch(true)}
+                  className="edit-profile-btn"
+                  style={{
+                    background: theme.backgroundColor,
+                    color: theme.textColor,
+                  }}
+                >
+                  <FontAwesomeIcon icon={faPen} /> Edit Profile
+                </button>
+              )}
+              {currentUser?.result._id === id && (
+                <LoginInformationWidget
+                  theme={{
+                    backgroundColor: theme.backgroundColor,
+                    textColor: theme.textColor,
+                  }}
+                  handleButtonClick={handleButtonClick}
+                  showDetails={showDetails}
+                  currentUser={currentUser}
+                />
+              )}
+            </div>
           </div>
           <>
             {Switch ? (

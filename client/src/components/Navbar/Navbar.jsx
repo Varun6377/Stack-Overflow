@@ -1,19 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import decode from "jwt-decode";
+import { setCurrentUser } from "../../actions/currentUser";
+
+import { ReactComponent as Sun } from "../../assets/Sun.svg";
+import { ReactComponent as Moon } from "../../assets/Moon.svg";
 
 import logo from "../../assets/logo.png";
 import search from "../../assets/search-solid.svg";
 import Avatar from "../../components/Avatar/Avatar";
-import "./Navbar.css";
-import { setCurrentUser } from "../../actions/currentUser";
+import { useTheme } from "../../components/ThemeContext/ThemeContext";
 import bars from "../../assets/bars-solid.svg";
+import close from "../../assets/close.png";
+import "./Navbar.css";
 
-const Navbar = ({ handleSlideIn }) => {
+const Navbar = ({ handleSlideIn, slideIn }) => {
   const dispatch = useDispatch();
-  var User = useSelector((state) => state.currentUserReducer);
   const navigate = useNavigate();
+  const { theme, toggleTheme, isDayTime } = useTheme();
+  var User = useSelector((state) => state.currentUserReducer);
 
   const handleLogout = () => {
     dispatch({ type: "LOGOUT" });
@@ -32,33 +38,103 @@ const Navbar = ({ handleSlideIn }) => {
     dispatch(setCurrentUser(JSON.parse(localStorage.getItem("Profile"))));
   }, [User?.token, dispatch]);
 
+  const [isWideScreen, setIsWideScreen] = useState(() => {
+    const storedValue = localStorage.getItem("isWideScreen");
+    return storedValue ? JSON.parse(storedValue) : window.innerWidth <= 400;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsWideScreen(window.innerWidth <= 400);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("isWideScreen", JSON.stringify(isWideScreen));
+  }, [isWideScreen]);
+
   return (
-    <nav className="main-nav">
+    <nav
+      className="main-nav"
+      style={{ background: theme.backgroundColor, color: theme.textColor }}
+    >
       <div className="navbar">
-        <button className="slide-in-icon" onClick={() => handleSlideIn()}>
-          <img src={bars} alt="bars" width="15" />
+        <button
+          className={`${
+            !isDayTime ? "dark-mode-icon-bar-close" : "slide-in-icon"
+          }`}
+          onClick={handleSlideIn}
+          style={{ color: "inherit" }}
+        >
+          {slideIn ? (
+            <img src={close} alt="close" width="14" />
+          ) : (
+            <img src={bars} alt="bars" width="15" />
+          )}
         </button>
         <div className="navbar-1">
-          <Link to="/" className="nav-item nav-logo">
-            <img src={logo} alt="logo" />
+          <Link
+            to="/"
+            className={`nav-logo ${!isDayTime ? "dark-mode-logo" : ""}`}
+            style={{ color: "inherit", textDecoration: "none" }}
+          >
+            <img src={logo} alt="logo" className="logo" />
           </Link>
-          <Link to="/" className="nav-item nav-btn res-nav">
+          <Link
+            to="/"
+            className="nav-item nav-btn res-nav"
+            style={{
+              color: theme.textColor,
+            }}
+          >
             About
           </Link>
-          <Link to="/" className="nav-item nav-btn res-nav">
+          <Link
+            to="/"
+            className="nav-item nav-btn res-nav"
+            style={{ color: theme.textColor }}
+          >
             Products
           </Link>
-          <Link to="/" className="nav-item nav-btn res-nav">
+          <Link
+            to="/"
+            className="nav-item nav-btn res-nav"
+            style={{ color: theme.textColor }}
+          >
             For Teams
           </Link>
           <form>
-            <input type="text" placeholder="Search..." />
+            <input
+              type="text"
+              placeholder="Search..."
+              style={{
+                background: theme.backgroundColor,
+                color: theme.textColor,
+              }}
+            />
             <img src={search} alt="search" width="1" className="search-icon" />
           </form>
         </div>
-        <div className="navbar-2">
+        <div
+          className={`${
+            User != null && isWideScreen ? "navbar-2-smallScreen" : "navbar-2"
+          }`}
+        >
           {User === null ? (
-            <Link to="/Auth" className="nav-item nav-links">
+            <Link
+              to="/Auth"
+              className="nav-item nav-links"
+              style={{
+                background: theme.backgroundColor,
+                color: theme.textColor,
+              }}
+            >
               Log in
             </Link>
           ) : (
@@ -77,11 +153,36 @@ const Navbar = ({ handleSlideIn }) => {
                   {User.result.name.charAt(0).toUpperCase()}
                 </Link>
               </Avatar>
-              <button className="nav-item nav-links" onClick={handleLogout}>
+              <button
+                className={`${isWideScreen ? "logout" : "nav-item nav-links"}`}
+                onClick={handleLogout}
+                style={{
+                  background: theme.backgroundColor,
+                  color: theme.textColor,
+                }}
+              >
                 Log out
               </button>
             </>
           )}
+
+          <div className="dark_mode">
+            <input
+              className="dark_mode_input"
+              type="checkbox"
+              id="darkmode-toggle"
+              onClick={toggleTheme}
+              checked={!isDayTime}
+              style={{
+                background: theme.backgroundColor,
+                color: theme.textColor,
+              }}
+            />
+            <label className="dark_mode_label" for="darkmode-toggle">
+              <Sun />
+              <Moon />
+            </label>
+          </div>
         </div>
       </div>
     </nav>

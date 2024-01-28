@@ -1,14 +1,17 @@
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import "./App.css";
+import { useDispatch, useSelector } from "react-redux";
 import Navbar from "./components/Navbar/Navbar";
 import AllRoutes from "./AllRoutes";
 import { fetchAllQuestions } from "./actions/question";
 import { fetchAllUsers } from "./actions/users";
+import { useTheme } from "./components/ThemeContext/ThemeContext";
+import { leftBarSlide } from "./actions/leftBarSlide";
 
 function App() {
   const dispatch = useDispatch();
+  const { theme } = useTheme();
+  var slide = useSelector((state) => state.leftBarSlideReducer);
 
   useEffect(() => {
     dispatch(fetchAllQuestions());
@@ -16,12 +19,15 @@ function App() {
   }, [dispatch]);
 
   const [slideIn, setSlideIn] = useState(true);
+  // console.log("slideIn", slideIn);
 
   useEffect(() => {
-    if (window.innerWidth <= 760) {
-      setSlideIn(false);
-    }
+    setSlideIn(false);
   }, []);
+
+  useEffect(() => {
+    dispatch(leftBarSlide(slideIn));
+  }, [slideIn, dispatch]);
 
   const handleSlideIn = () => {
     if (window.innerWidth <= 760) {
@@ -30,9 +36,11 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div
+      style={{ backgroundColor: theme.backgroundColor, color: theme.textColor }}
+    >
       <Router>
-        <Navbar handleSlideIn={handleSlideIn} />
+        <Navbar slideIn={slideIn} handleSlideIn={handleSlideIn} />
         <AllRoutes slideIn={slideIn} handleSlideIn={handleSlideIn} />
       </Router>
     </div>

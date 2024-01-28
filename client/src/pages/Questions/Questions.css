@@ -124,8 +124,71 @@
   white-space: pre-line;
 }
 
+.overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video {
+  width: 50%;
+  height: 50%;
+}
+
 @media screen and (max-width: 1020px) {
   .question-details-page {
     width: calc(100% - 24px);
+  }
+  .video {
+    width: 50%;
+    height: 50%;
+  }
+}
+
+@media (width <= 640px) {
+  .slide-in-icon {
+    display: block;
+  }
+  .navbar .navbar-1 .res-nav {
+    display: none;
+  }
+  .dark_mode {
+    position: relative;
+    left: 5px;
+    margin-top: -20px;
+    margin-left: 10px;
+  }
+  .video {
+    width: 50%;
+    height: 50%;
+  }
+}
+
+@media (width <= 480px) {
+  .video {
+    width: 70%;
+    height: 60%;
+  }
+}
+
+@media (width <= 410px) {
+  .video {
+    width: 70%;
+    height: 60%;
+  }
+}
+
+@media (width <= 360px) {
+  .video {
+    width: 80%;
+    height: 60%;
   }
 }

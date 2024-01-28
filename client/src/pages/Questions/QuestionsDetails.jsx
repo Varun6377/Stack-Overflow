@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import upvote from "../../assets/sort-up.svg";
 import downvote from "../../assets/sort-down.svg";
 import "./Questions.css";
@@ -13,10 +13,16 @@ import {
 } from "../../actions/question";
 import moment from "moment";
 import copy from "copy-to-clipboard";
+import { useTheme } from "../../components/ThemeContext/ThemeContext";
+import { useGesture } from "react-use-gesture";
 
 export default function QuestionsDetails() {
   const { id } = useParams();
   const [Answer, setAnswer] = useState("");
+  const [convertedVideoFile, setConvertedVideoFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const { theme } = useTheme();
 
   const questionsList = useSelector((state) => state.questionsReducer);
 
@@ -24,67 +30,8 @@ export default function QuestionsDetails() {
   const dispatch = useDispatch();
   const User = useSelector((state) => state.currentUserReducer);
   const location = useLocation();
-  const url = "http://localhost:3000";
+  const url = "https://stack-overflow-varun.netlify.app";
 
-  // var questionsList = [
-  //   {
-  //     _id: "1",
-  //     votes: 3,
-  //     noOfAnswers: 2,
-  //     questionTitle: "What is a function?",
-  //     questionBody: "It meant to be",
-  //     questionTags: ["java", "node js", "react js", "mongo"],
-  //     userPosted: "mano",
-  //     userId: "1",
-  //     askedOn: "jan 1",
-  //     answer: [
-  //       {
-  //         answerBody: "Answer",
-  //         userAnswered: "Kumar",
-  //         answerOn: "jan 2",
-  //         userId: "2",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     _id: "2",
-  //     votes: 0,
-  //     noOfAnswers: 0,
-  //     questionTitle: "What is a function?",
-  //     questionBody: "It meant to be",
-  //     questionTags: ["javascript", "R", "python"],
-  //     userPosted: "mano",
-  //     userId: "1",
-  //     askedOn: "jan 1",
-  //     answer: [
-  //       {
-  //         answerBody: "Answer",
-  //         userAnswered: "Kumar",
-  //         answerOn: "jan 2",
-  //         userId: "2",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     _id: "3",
-  //     votes: 1,
-  //     noOfAnswers: 0,
-  //     questionTitle: "What is a function?",
-  //     questionBody: "It meant to be",
-  //     questionTags: ["javascript", "R", "python"],
-  //     userPosted: "mano",
-  //     userId: "1",
-  //     askedOn: "jan 1",
-  //     answer: [
-  //       {
-  //         answerBody: "Answer",
-  //         userAnswered: "Kumar",
-  //         answerOn: "jan 2",
-  //         userId: "2",
-  //       },
-  //     ],
-  //   },
-  // ];
   const handlePostAns = (e, answerLength) => {
     e.preventDefault();
     if (User === null) {
@@ -101,9 +48,11 @@ export default function QuestionsDetails() {
             answerBody: Answer,
             userAnswered: User.result.name,
             userId: User.result._id,
+            video: convertedVideoFile,
           })
         );
         setAnswer("");
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -114,16 +63,91 @@ export default function QuestionsDetails() {
   };
 
   const handleUpVote = () => {
-    dispatch(voteQuestion(id, "upVote", User.result._id));
+    if (User) {
+      dispatch(voteQuestion(id, "upVote", User.result._id));
+    } else {
+      alert("Please log in to upvote.");
+    }
   };
 
   const handleDownVote = () => {
-    dispatch(voteQuestion(id, "downVote", User.result._id));
+    if (User) {
+      dispatch(voteQuestion(id, "downVote", User.result._id));
+    } else {
+      alert("Please log in to downvote.");
+    }
   };
 
   const handleDelete = () => {
     dispatch(deleteQuestion(id, Navigate));
   };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        const videoContentAsDataUrl = event.target.result;
+        setConvertedVideoFile(videoContentAsDataUrl);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+  const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  let backwardSeekTimer;
+
+  const bind = useGesture({
+    onDrag: () => {},
+    onDoubleClick: ({ event }) => {
+      const video = videoRef.current;
+      const seekForward = event.clientX > (2 * window.innerWidth) / 3;
+      const seekBackward = event.clientX < window.innerWidth / 3;
+
+      if (seekForward || seekBackward) {
+        const seekAmount = seekForward ? 10 : -5;
+
+        video.currentTime += seekAmount;
+      } else {
+        if (isPlaying) {
+          video.pause();
+        } else {
+          video.play();
+        }
+        setIsPlaying(!isPlaying);
+      }
+    },
+    onPointerDown: ({ event }) => {
+      const video = videoRef.current;
+      const seekForward = event.clientX > (2 * window.innerWidth) / 3;
+      const seekBackward = event.clientX < window.innerWidth / 3;
+
+      if (seekForward) {
+        video.playbackRate = 2;
+      } else if (seekBackward) {
+        video.pause();
+
+        backwardSeekTimer = setInterval(() => {
+          video.currentTime = Math.max(0, video.currentTime - 1);
+        }, 1000);
+      }
+    },
+
+    onPointerUp: () => {
+      const video = videoRef.current;
+      const isVideoEnded = video.currentTime === video.duration;
+
+      video.playbackRate = 1;
+
+      clearInterval(backwardSeekTimer);
+
+      if (!isVideoEnded) {
+        video.play();
+      }
+    },
+  });
 
   return (
     <div className="question-details-page">
@@ -159,7 +183,14 @@ export default function QuestionsDetails() {
                       <p className="question-body">{question.questionBody}</p>
                       <div className="question-details-tags">
                         {question.questionTags.map((tag) => (
-                          <p key={tag}>{tag}</p>
+                          <p
+                            key={tag}
+                            style={{
+                              background: theme.backgroundColor,
+                            }}
+                          >
+                            {tag}
+                          </p>
                         ))}
                       </div>
                       <div className="question-actions-user">
@@ -195,16 +226,30 @@ export default function QuestionsDetails() {
                     </div>
                   </div>
                 </section>
-                {question.noOfAnswers !== 0 && (
-                  <section>
-                    <h3>{question.noOfAnswers} Answers</h3>
-                  </section>
+                {question.video && (
+                  <div className="question-video">
+                    <h3>Question Related Video</h3>
+                    <div className="video-container">
+                      <video
+                        width="400"
+                        controls
+                        ref={videoRef}
+                        {...bind()}
+                        className="video"
+                      >
+                        <source src={question.video} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  </div>
                 )}
+
                 <DisplayAnswer
                   key={question._id}
                   question={question}
                   handleShare={handleShare}
                 />
+
                 <section className="post-ans-container">
                   <h3>Your Answer</h3>
                   <form
@@ -217,9 +262,27 @@ export default function QuestionsDetails() {
                       id=""
                       cols="30"
                       rows="10"
-                      // value=""
+                      style={{
+                        background: theme.backgroundColor,
+                        color: theme.textColor,
+                      }}
+                      value={Answer}
                       onChange={(e) => setAnswer(e.target.value)}
                     ></textarea>
+                    <br />
+                    <label htmlFor="ask-ques-video">
+                      <h4>Video (optional)</h4>
+                      <p>
+                        You can upload a video related to your answer; only
+                        'mp4' files are supported
+                      </p>
+                      <input
+                        type="file"
+                        id="ask-ques-video"
+                        onChange={handleFileChange}
+                        ref={fileInputRef}
+                      />
+                    </label>
                     <br />
                     <input
                       type="submit"
@@ -230,7 +293,14 @@ export default function QuestionsDetails() {
                   <p>
                     Browse other Question tagged
                     {question.questionTags.map((tag) => (
-                      <Link to="/Tags" key={tag} className="ans-tags">
+                      <Link
+                        to="/Tags"
+                        key={tag}
+                        className="ans-tags"
+                        style={{
+                          background: theme.backgroundColor,
+                        }}
+                      >
                         {" "}
                         {tag}{" "}
                       </Link>

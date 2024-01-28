@@ -1,25 +1,24 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { updateProfile } from "../../actions/users";
+import { useTheme } from "../../components/ThemeContext/ThemeContext";
 
 const EditProfileForm = ({ currentUser, setSwitch }) => {
   const [name, setName] = useState(currentUser?.result?.name);
   const [about, setAbout] = useState(currentUser?.result?.about);
-  console.log("before", currentUser.result);
   const [tags, setTags] = useState([]);
+  const { theme } = useTheme();
+
   const dispatch = useDispatch();
   const handleSubmit = (e) => {
     e.preventDefault();
     if (tags.length === 0) {
       dispatch(updateProfile(currentUser?.result?._id, { about, name }));
-      console.log("after", currentUser.result);
     } else {
       dispatch(updateProfile(currentUser?.result?._id, { name, about, tags }));
-      console.log("after with tags", currentUser.result);
     }
     setSwitch(false);
   };
-  console.log("final", currentUser.result);
 
   return (
     <div>
@@ -31,6 +30,10 @@ const EditProfileForm = ({ currentUser, setSwitch }) => {
           <input
             type="text"
             value={name}
+            style={{
+              background: theme.backgroundColor,
+              color: theme.textColor,
+            }}
             onChange={(e) => setName(e.target.value)}
           />
         </label>
@@ -41,6 +44,10 @@ const EditProfileForm = ({ currentUser, setSwitch }) => {
             cols="30"
             rows="10"
             value={about}
+            style={{
+              background: theme.backgroundColor,
+              color: theme.textColor,
+            }}
             onChange={(e) => setAbout(e.target.value)}
           ></textarea>
         </label>
@@ -50,6 +57,10 @@ const EditProfileForm = ({ currentUser, setSwitch }) => {
           <input
             type="text"
             id="tags"
+            style={{
+              background: theme.backgroundColor,
+              color: theme.textColor,
+            }}
             onChange={(e) => setTags(e.target.value.split(" "))}
           />
         </label>

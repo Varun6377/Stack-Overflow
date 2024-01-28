@@ -5,9 +5,13 @@ import userRoutes from "./routes/users.js";
 import questionsRoutes from "./routes/Questions.js";
 import answerRoutes from "./routes/Answers.js";
 import dotenv from "dotenv";
+
+import useragent from "express-useragent";
+
 dotenv.config();
 
 const app = express();
+app.use(useragent.express());
 app.use(express.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());

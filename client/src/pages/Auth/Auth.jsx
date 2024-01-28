@@ -6,11 +6,14 @@ import "./Auth.css";
 import icon from "../../assets/icon.png";
 import AboutAuth from "./AboutAuth";
 import { signup, login } from "../../actions/auth";
+import { useTheme } from "../../components/ThemeContext/ThemeContext";
+
 const Auth = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { theme } = useTheme();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,11 +41,23 @@ const Auth = () => {
   };
 
   return (
-    <section className="auth-section">
+    <section
+      className="auth-section"
+      style={{
+        background: theme.backgroundColor,
+        color: theme.textColor,
+      }}
+    >
       {isSignup && <AboutAuth />}
       <div className="auth-container-2">
         <img src={icon} alt="stack overflow" className="login-logo" />
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            background: theme.backgroundColor,
+            color: theme.textColor,
+          }}
+        >
           {isSignup && (
             <label htmlFor="name">
               <h4>Display Name</h4>
@@ -51,6 +66,10 @@ const Auth = () => {
                 id="name"
                 name="name"
                 value={name}
+                style={{
+                  background: theme.backgroundColor,
+                  color: theme.textColor,
+                }}
                 onChange={(e) => {
                   setName(e.target.value);
                 }}
@@ -64,6 +83,10 @@ const Auth = () => {
               name="email"
               id="email"
               value={email}
+              style={{
+                background: theme.backgroundColor,
+                color: theme.textColor,
+              }}
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
@@ -72,17 +95,21 @@ const Auth = () => {
           <label htmlFor="password">
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <h4>Password</h4>
-              {!isSignup && (
+              {/* {!isSignup && (
                 <p style={{ color: "#007ac6", fontSize: "13px" }}>
                   forgot password?
                 </p>
-              )}
+              )} */}
             </div>
             <input
               type="password"
               name="password"
               id="password"
               value={password}
+              style={{
+                background: theme.backgroundColor,
+                color: theme.textColor,
+              }}
               onChange={(e) => {
                 setPassword(e.target.value);
               }}
