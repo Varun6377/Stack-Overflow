@@ -19,7 +19,6 @@ function App() {
   }, [dispatch]);
 
   const [slideIn, setSlideIn] = useState(true);
-  // console.log("slideIn", slideIn);
 
   useEffect(() => {
     setSlideIn(false);
