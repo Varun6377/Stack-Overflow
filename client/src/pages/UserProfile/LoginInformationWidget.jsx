@@ -1,5 +1,3 @@
-// LoginInformationWidget.js
-
 import React from "react";
 
 const LoginInformationWidget = ({
